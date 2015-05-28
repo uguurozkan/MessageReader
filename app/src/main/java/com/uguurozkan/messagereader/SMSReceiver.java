@@ -19,6 +19,7 @@ public class SMSReceiver extends BroadcastReceiver{
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
+        Intent service = new Intent(context, NewMessageNotifierService.class);
+        context.startService(service);
     }
 }
