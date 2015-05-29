@@ -9,17 +9,76 @@ package com.uguurozkan.messagereader;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.telephony.SmsMessage;
 
 /**
  * Created by Uğur Özkan on 5/27/2015.
  * <p/>
  * ugur.ozkan@ozu.edu.tr
  */
-public class SMSReceiver extends BroadcastReceiver{
+public class SMSReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent service = new Intent(context, NewMessageNotifierService.class);
-        context.startService(service);
+        Intent messageNotifierService = new Intent(context, NewMessageNotifierService.class);
+        messageNotifierService.putExtra("senderNum", getSenderName(context, intent.getExtras()));
+        context.startService(messageNotifierService);
+
+        Intent commandListenerService = new Intent(context, CommandListenerService.class);
+        commandListenerService.putExtra("messageBody", getMessageBody(intent.getExtras()));
+        context.startService(commandListenerService);
+    }
+
+    private String getSenderName(Context context, Bundle intentExtras) {
+        String contactNum = getSenderNum(intentExtras);
+        String contact = contactNum; // just to be sure
+
+        Uri lookupURI = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.decode(contactNum));
+        Cursor cursor = context.getContentResolver().query(lookupURI, new String[]{ContactsContract.Data.DISPLAY_NAME}, null, null, null);
+
+        try {
+            cursor.moveToFirst();
+            contact = cursor.getString(0);
+        } catch (Exception e) {
+            contact = contactNum;
+        } finally {
+            cursor.close();
+        }
+
+        return contact;
+    }
+
+    /**
+     * Gets the originating address of the message. It can be e-mail addresses as well
+     *
+     * @param intentExtras The Bundle that contains pdus.
+     * @return null or address.
+     */
+    private String getSenderNum(Bundle intentExtras) {
+        if (intentExtras == null)
+            return null;
+
+        final Object[] pdus = (Object[]) intentExtras.get("pdus");
+        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[0]);
+        return currentMessage.getDisplayOriginatingAddress();
+    }
+
+    /**
+     * Gets the message.
+     *
+     * @param intentExtras The Bundle that contains pdus.
+     * @return null or message.
+     */
+    private String getMessageBody(Bundle intentExtras) {
+        if (intentExtras == null)
+            return null;
+
+        final Object[] pdus = (Object[]) intentExtras.get("pdus");
+        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[0]);
+        return currentMessage.getDisplayMessageBody();
     }
 }

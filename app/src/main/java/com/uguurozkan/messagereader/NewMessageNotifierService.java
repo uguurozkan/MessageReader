@@ -6,13 +6,10 @@
 
 package com.uguurozkan.messagereader;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -23,7 +20,7 @@ import java.util.Locale;
  */
 public class NewMessageNotifierService extends Service implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
 
-    private final String SPEECH = "You have a new message.";
+    private final String SPEECH = "You have a new message from ";
     private TextToSpeech incomingMessageSpeech;
 
     @Override
@@ -50,14 +47,16 @@ public class NewMessageNotifierService extends Service implements TextToSpeech.O
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
             //System.out.println(incomingMessageSpeech.isLanguageAvailable(Locale.UK));
-            incomingMessageSpeech.setLanguage(Locale.UK);
+            incomingMessageSpeech.setLanguage(Locale.US);
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        incomingMessageSpeech.speak(SPEECH, TextToSpeech.QUEUE_FLUSH, null);
+        String senderNum = intent.getStringExtra("senderNum");
+        incomingMessageSpeech.speak(SPEECH + senderNum, TextToSpeech.QUEUE_ADD, null);
         return super.onStartCommand(intent, flags, startId);
+        //return START_NOT_STICKY;
     }
 
     @Override
