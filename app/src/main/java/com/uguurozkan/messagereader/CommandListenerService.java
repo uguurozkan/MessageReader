@@ -29,6 +29,7 @@ public class CommandListenerService extends Service implements RecognitionListen
 
     private SpeechRecognizer speechRecognizer;
     private Intent recognitionIntent;
+    private String messageBody;
 
     String TAG = "TAGAT";
 
@@ -50,6 +51,7 @@ public class CommandListenerService extends Service implements RecognitionListen
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
+        messageBody = intent.getStringExtra("messageBody");
         initRecognitionIntent();
         listen();
         return super.onStartCommand(intent, flags, startId);
@@ -117,7 +119,7 @@ public class CommandListenerService extends Service implements RecognitionListen
             case IGNORE:
                 break;
             case READ:
-                break;
+                readMessage();
             case REPLY:
                 break;
             case DELETE:
@@ -126,6 +128,12 @@ public class CommandListenerService extends Service implements RecognitionListen
                 Log.d(TAG, command.name());
                 break;
         }
+    }
+
+    private void readMessage() {
+        Intent messageNotifierService = new Intent(this, Reader.class);
+        messageNotifierService.putExtra("speech", messageBody);
+        this.startService(messageNotifierService);
     }
 
     @Override

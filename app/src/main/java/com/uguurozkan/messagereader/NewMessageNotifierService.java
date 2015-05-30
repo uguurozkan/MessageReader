@@ -9,7 +9,7 @@ package com.uguurozkan.messagereader;
 import android.content.Intent;
 
 /**
- * Created by Uğur Özkan on 5/31/2015.
+ * Created by Uğur Özkan on 5/28/2015.
  * <p/>
  * ugur.ozkan@ozu.edu.tr
  */
