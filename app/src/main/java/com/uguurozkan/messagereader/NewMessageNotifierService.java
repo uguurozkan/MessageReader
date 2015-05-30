@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -22,11 +23,51 @@ public class NewMessageNotifierService extends Service implements TextToSpeech.O
 
     private final String SPEECH = "You have a new message from ";
     private TextToSpeech incomingMessageSpeech;
+    private String senderNum;
 
     @Override
     public void onCreate() {
-        incomingMessageSpeech = new TextToSpeech(this, this);
         super.onCreate();
+        incomingMessageSpeech = getTextToSpeech();
+    }
+
+    // Lazy initialization
+    private TextToSpeech getTextToSpeech() {
+        if (incomingMessageSpeech == null) {
+            incomingMessageSpeech = new TextToSpeech(this, this);
+        }
+        return incomingMessageSpeech;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        senderNum = intent.getStringExtra("senderNum");
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            setTtsParams();
+            speak();
+        }
+    }
+
+    private void setTtsParams() {
+        incomingMessageSpeech.setLanguage(Locale.US);
+        incomingMessageSpeech.setSpeechRate(0.8f);
+        incomingMessageSpeech.setOnUtteranceCompletedListener(this);
+    }
+
+    private void speak() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "uniqueId");
+        incomingMessageSpeech.speak(SPEECH + senderNum, TextToSpeech.QUEUE_ADD, map);
+    }
+
+    @Override
+    public void onUtteranceCompleted(String utteranceId) {
+        stopSelf();
     }
 
     @Override
@@ -35,32 +76,12 @@ public class NewMessageNotifierService extends Service implements TextToSpeech.O
             incomingMessageSpeech.stop();
             incomingMessageSpeech.shutdown();
         }
+        incomingMessageSpeech = null;
         super.onDestroy();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            //System.out.println(incomingMessageSpeech.isLanguageAvailable(Locale.UK));
-            incomingMessageSpeech.setLanguage(Locale.US);
-        }
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        String senderNum = intent.getStringExtra("senderNum");
-        incomingMessageSpeech.speak(SPEECH + senderNum, TextToSpeech.QUEUE_ADD, null);
-        return super.onStartCommand(intent, flags, startId);
-        //return START_NOT_STICKY;
-    }
-
-    @Override
-    public void onUtteranceCompleted(String utteranceId) {
-        stopSelf();
     }
 }
