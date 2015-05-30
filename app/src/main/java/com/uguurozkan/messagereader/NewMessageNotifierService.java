@@ -22,21 +22,21 @@ import java.util.Locale;
 public class NewMessageNotifierService extends Service implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
 
     private final String SPEECH = "You have a new message from ";
-    private TextToSpeech incomingMessageSpeech;
+    private TextToSpeech incomingMessageTTS;
     private String senderNum;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        incomingMessageSpeech = getTextToSpeech();
+        incomingMessageTTS = getTextToSpeech();
     }
 
     // Lazy initialization
     private TextToSpeech getTextToSpeech() {
-        if (incomingMessageSpeech == null) {
-            incomingMessageSpeech = new TextToSpeech(this, this);
+        if (incomingMessageTTS == null) {
+            incomingMessageTTS = new TextToSpeech(this, this);
         }
-        return incomingMessageSpeech;
+        return incomingMessageTTS;
     }
 
     @Override
@@ -54,15 +54,15 @@ public class NewMessageNotifierService extends Service implements TextToSpeech.O
     }
 
     private void setTtsParams() {
-        incomingMessageSpeech.setLanguage(Locale.US);
-        incomingMessageSpeech.setSpeechRate(0.8f);
-        incomingMessageSpeech.setOnUtteranceCompletedListener(this);
+        incomingMessageTTS.setLanguage(Locale.US);
+        incomingMessageTTS.setSpeechRate(0.8f);
+        incomingMessageTTS.setOnUtteranceCompletedListener(this);
     }
 
     private void speak() {
         HashMap<String, String> map = new HashMap<>();
         map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "uniqueId");
-        incomingMessageSpeech.speak(SPEECH + senderNum, TextToSpeech.QUEUE_ADD, map);
+        incomingMessageTTS.speak(SPEECH + senderNum, TextToSpeech.QUEUE_ADD, map);
     }
 
     @Override
@@ -72,11 +72,11 @@ public class NewMessageNotifierService extends Service implements TextToSpeech.O
 
     @Override
     public void onDestroy() {
-        if (incomingMessageSpeech != null) {
-            incomingMessageSpeech.stop();
-            incomingMessageSpeech.shutdown();
+        if (incomingMessageTTS != null) {
+            incomingMessageTTS.stop();
+            incomingMessageTTS.shutdown();
         }
-        incomingMessageSpeech = null;
+        incomingMessageTTS = null;
         super.onDestroy();
     }
 

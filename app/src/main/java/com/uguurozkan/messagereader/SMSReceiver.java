@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.telephony.SmsMessage;
+import android.util.Log;
 
 /**
  * Created by Uğur Özkan on 5/27/2015.
@@ -24,15 +25,29 @@ public class SMSReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        startMessageNotifierService(context, intent);
+        startCommandListenerService(context, intent);
+    }
+
+    private void startMessageNotifierService(Context context, Intent intent) {
         Intent messageNotifierService = new Intent(context, NewMessageNotifierService.class);
         messageNotifierService.putExtra("senderNum", getSenderName(context, intent.getExtras()));
         context.startService(messageNotifierService);
+    }
 
+    private void startCommandListenerService(Context context, Intent intent) {
         Intent commandListenerService = new Intent(context, CommandListenerService.class);
         commandListenerService.putExtra("messageBody", getMessageBody(intent.getExtras()));
         context.startService(commandListenerService);
     }
 
+    /**
+     * Parse contact name from the number.
+     *
+     * @param context
+     * @param intentExtras The Bundle that contains pdus.
+     * @return contact name if there is or sender number otherwise.
+     */
     private String getSenderName(Context context, Bundle intentExtras) {
         String contactNum = getSenderNum(intentExtras);
         String contact = contactNum; // just to be sure
