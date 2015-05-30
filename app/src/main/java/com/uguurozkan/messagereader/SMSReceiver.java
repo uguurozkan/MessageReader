@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.telephony.SmsMessage;
-import android.util.Log;
 
 /**
  * Created by Uğur Özkan on 5/27/2015.

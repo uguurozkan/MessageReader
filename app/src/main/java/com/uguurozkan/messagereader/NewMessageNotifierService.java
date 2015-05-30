@@ -84,4 +84,5 @@ public class NewMessageNotifierService extends Service implements TextToSpeech.O
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 }

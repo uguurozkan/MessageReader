@@ -15,6 +15,9 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -31,13 +34,7 @@ public class CommandListenerService extends Service implements RecognitionListen
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate");
-        init();
         super.onCreate();
-    }
-
-    private void init() {
-        Log.d(TAG, "init");
         speechRecognizer = getSpeechRecognizer();
     }
 
@@ -51,8 +48,88 @@ public class CommandListenerService extends Service implements RecognitionListen
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        initRecognitionIntent();
+        listen();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void initRecognitionIntent() {
+        recognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        recognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        recognitionIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
+        recognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+    }
+
+    private void listen() {
+        getSpeechRecognizer().startListening(recognitionIntent);
+    }
+
+    @Override
+    public void onError(int error) {
+        Log.d(TAG, "error " + error);
+
+        if ((error == SpeechRecognizer.ERROR_NO_MATCH) ||
+                (error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT) ||
+                (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT)) {
+            listen();
+        }
+    }
+
+    @Override
+    public void onResults(Bundle results) {
+        Log.d(TAG, "onResults ");
+        if ((results != null) && results.containsKey(SpeechRecognizer.RESULTS_RECOGNITION)) {
+            List<String> heard = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            ArrayList<VoiceCommand> voiceCommands = parseCommands(heard);
+            for (VoiceCommand command : voiceCommands) {
+                executeCommand(command);
+            }
+
+            if (!voiceCommands.isEmpty()) {
+                stopSelf();
+            }
+        }
+    }
+
+    private ArrayList<VoiceCommand> parseCommands(List<String> heard) {
+        Log.d(TAG, "parseCommands ");
+        ArrayList<VoiceCommand> voiceCommands = new ArrayList<>();
+        for (String said : heard) {
+            Log.d(TAG, "parseCommands " + said);
+            for (VoiceCommand command : VoiceCommand.values()) {
+                if (said.toLowerCase().contains(command.name().toLowerCase())) {
+                    voiceCommands.add(command.getCommand());
+                }
+            }
+        }
+        HashSet<VoiceCommand> tempHS = new HashSet<>();
+        tempHS.addAll(voiceCommands);
+        voiceCommands.clear();
+        voiceCommands.addAll(tempHS);
+        Collections.sort(voiceCommands);
+        return voiceCommands;
+    }
+
+    private void executeCommand(VoiceCommand command) {
+        switch (command) {
+            case IGNORE:
+                break;
+            case READ:
+                break;
+            case REPLY:
+                break;
+            case DELETE:
+                break;
+            default:
+                Log.d(TAG, command.name());
+                break;
+        }
+    }
+
+    @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy");
         if (speechRecognizer != null) {
             speechRecognizer.stopListening();
             speechRecognizer.cancel();
@@ -63,25 +140,8 @@ public class CommandListenerService extends Service implements RecognitionListen
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onstartCommand");
-        recognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        recognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        recognitionIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
-        recognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-        speechRecognizer.startListening(recognitionIntent);
-
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
     public void onReadyForSpeech(Bundle params) {
-        Log.d(TAG, "onReadyForSpeech");
+
     }
 
     @Override
@@ -101,47 +161,22 @@ public class CommandListenerService extends Service implements RecognitionListen
 
     @Override
     public void onEndOfSpeech() {
-        Log.d(TAG, "onEndofSpeech");
-        //stopSelf();
-    }
-
-    @Override
-    public void onError(int error) {
-        Log.d(TAG, "error " + error);
-
-        if ((error == SpeechRecognizer.ERROR_NO_MATCH) || (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT)) {
-            Log.d(TAG, "didn't recognize anything");
-            // keep going
-            getSpeechRecognizer().startListening(recognitionIntent);
-        }
-    }
-
-    @Override
-    public void onResults(Bundle results) {
-        Log.d(TAG, "onResults ");
-        if ((results != null) && results.containsKey(SpeechRecognizer.RESULTS_RECOGNITION)) {
-            List<String> heard = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-
-            for (String said : heard) {
-                if (said.contains("test")){
-                    Log.d(TAG, "heard test");
-                }
-            }
-
-            for (int i = 0; i<heard.size(); i++) {
-                Log.d(TAG, " onResults     " +  heard.get(i));
-            }
-        }
+        Log.d(TAG, "onEndOfSpeech");
     }
 
     @Override
     public void onPartialResults(Bundle partialResults) {
-        Log.d(TAG, "onPartialResults");
+
     }
 
     @Override
     public void onEvent(int eventType, Bundle params) {
-        Log.d(TAG, "onEvent " + eventType);
+
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
 }
