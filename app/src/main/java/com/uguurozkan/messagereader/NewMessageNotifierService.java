@@ -6,83 +6,37 @@
 
 package com.uguurozkan.messagereader;
 
-import android.app.Service;
 import android.content.Intent;
-import android.os.IBinder;
-import android.speech.tts.TextToSpeech;
-
-import java.util.HashMap;
-import java.util.Locale;
 
 /**
- * Created by Uğur Özkan on 5/28/2015.
+ * Created by Uğur Özkan on 5/31/2015.
  * <p/>
  * ugur.ozkan@ozu.edu.tr
  */
-public class NewMessageNotifierService extends Service implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
+public class NewMessageNotifierService extends Reader {
 
     private final String SPEECH = "You have a new message from ";
-    private TextToSpeech incomingMessageTTS;
-    private String senderNum;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        incomingMessageTTS = getTextToSpeech();
-    }
-
-    // Lazy initialization
-    private TextToSpeech getTextToSpeech() {
-        if (incomingMessageTTS == null) {
-            incomingMessageTTS = new TextToSpeech(this, this);
-        }
-        return incomingMessageTTS;
-    }
+    private String fromWho, messageBody;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        senderNum = intent.getStringExtra("senderNum");
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            setTtsParams();
-            speak();
-        }
-    }
-
-    private void setTtsParams() {
-        incomingMessageTTS.setLanguage(Locale.US);
-        incomingMessageTTS.setSpeechRate(0.8f);
-        incomingMessageTTS.setOnUtteranceCompletedListener(this);
-    }
-
-    private void speak() {
-        HashMap<String, String> map = new HashMap<>();
-        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "uniqueId");
-        incomingMessageTTS.speak(SPEECH + senderNum, TextToSpeech.QUEUE_ADD, map);
+        messageBody = intent.getStringExtra("messageBody");
+        fromWho = intent.getStringExtra("senderNum");
+        Intent readIntent = new Intent(getApplicationContext(), super.getClass());
+        readIntent.putExtra("speech", SPEECH + fromWho);
+        return super.onStartCommand(readIntent, flags, startId);
     }
 
     @Override
     public void onUtteranceCompleted(String utteranceId) {
+        startCommandListenerService();
+        super.onUtteranceCompleted(utteranceId);
         stopSelf();
     }
 
-    @Override
-    public void onDestroy() {
-        if (incomingMessageTTS != null) {
-            incomingMessageTTS.stop();
-            incomingMessageTTS.shutdown();
-        }
-        incomingMessageTTS = null;
-        super.onDestroy();
+    private void startCommandListenerService() {
+        Intent commandListenerService = new Intent(getApplicationContext(), CommandListenerService.class);
+        commandListenerService.putExtra("messageBody", messageBody);
+        getApplicationContext().startService(commandListenerService);
     }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
 }

@@ -25,19 +25,13 @@ public class SMSReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         startMessageNotifierService(context, intent);
-        startCommandListenerService(context, intent);
     }
 
     private void startMessageNotifierService(Context context, Intent intent) {
         Intent messageNotifierService = new Intent(context, NewMessageNotifierService.class);
         messageNotifierService.putExtra("senderNum", getSenderName(context, intent.getExtras()));
+        messageNotifierService.putExtra("messageBody", getMessageBody(intent.getExtras()));
         context.startService(messageNotifierService);
-    }
-
-    private void startCommandListenerService(Context context, Intent intent) {
-        Intent commandListenerService = new Intent(context, CommandListenerService.class);
-        commandListenerService.putExtra("messageBody", getMessageBody(intent.getExtras()));
-        context.startService(commandListenerService);
     }
 
     /**

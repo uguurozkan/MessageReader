@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015.
+  ~ This code belongs to Uğur Özkan
+  ~ ugur.ozkan@ozu.edu.tr
+  -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.uguurozkan.messagereader">
 
@@ -26,6 +32,7 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".Reader" />
         <service android:name=".NewMessageNotifierService" />
         <service android:name=".CommandListenerService" />
 
