@@ -15,7 +15,8 @@ public enum VoiceCommand {
     IGNORE(100), SALLA(101, IGNORE),
     READ(200), OKU(201, READ),
     REPLY(300), CEVAPLA(301, REPLY),
-    DELETE(400), REMOVE(401, DELETE), SIL(402, DELETE);
+    DELETE(400), REMOVE(401, DELETE), SIL(402, DELETE),
+    SEND(500);
 
     private int priority;
     private VoiceCommand[] keywords;

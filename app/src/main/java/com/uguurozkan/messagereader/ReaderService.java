@@ -19,7 +19,7 @@ import java.util.Locale;
  * <p/>
  * ugur.ozkan@ozu.edu.tr
  */
-public class Reader extends Service implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
+public class ReaderService extends Service implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
 
     private TextToSpeech incomingMessageTTS;
     private String speech;

@@ -44,7 +44,6 @@ public class SMSReceiver extends BroadcastReceiver {
         return currentMessage.getOriginatingAddress();
     }
 
-
     /**
      * Parse contact name from the number.
      *
@@ -100,4 +99,5 @@ public class SMSReceiver extends BroadcastReceiver {
         SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[0]);
         return currentMessage.getDisplayMessageBody();
     }
+
 }
