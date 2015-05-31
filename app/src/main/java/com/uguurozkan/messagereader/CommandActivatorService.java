@@ -112,7 +112,13 @@ public class CommandActivatorService extends ListenerService {
     }
 
     private void sendMessage() {
-        // TODO
+        startSenderService();
+    }
+
+    private void startSenderService() {
+        Intent messageSenderService = new Intent(getApplicationContext(), SenderService.class);
+        messageSenderService.putExtra("address", address);
+        startService(messageSenderService);
     }
 
     private void deleteMessage() {

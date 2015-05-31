@@ -54,7 +54,7 @@ public class ListenerService extends Service implements RecognitionListener {
         recognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognitionIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
-        recognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+        recognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
     }
 
     public void listen() {

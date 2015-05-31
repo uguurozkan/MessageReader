@@ -31,12 +31,12 @@ public class NotifierService extends ReaderService {
 
     @Override
     public void onUtteranceCompleted(String utteranceId) {
-        startCommandListenerService();
+        startCommandActivatorService();
         super.onUtteranceCompleted(utteranceId);
         stopSelf();
     }
 
-    private void startCommandListenerService() {
+    private void startCommandActivatorService() {
         Intent commandActivatorService = new Intent(getApplicationContext(), CommandActivatorService.class);
         commandActivatorService.putExtra("messageBody", messageBody);
         commandActivatorService.putExtra("address", address);
