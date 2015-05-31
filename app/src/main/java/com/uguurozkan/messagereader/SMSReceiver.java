@@ -80,9 +80,13 @@ public class SMSReceiver extends BroadcastReceiver {
         if (intentExtras == null)
             return null;
 
+        String number = "";
         final Object[] pdus = (Object[]) intentExtras.get("pdus");
-        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[0]);
-        return currentMessage.getDisplayOriginatingAddress();
+        for (int i = 0; i < pdus.length; i++) {
+            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[i]);
+            number += currentMessage.getDisplayOriginatingAddress();
+        }
+        return number;
     }
 
     /**
@@ -95,9 +99,14 @@ public class SMSReceiver extends BroadcastReceiver {
         if (intentExtras == null)
             return null;
 
+        String message = "";
         final Object[] pdus = (Object[]) intentExtras.get("pdus");
-        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[0]);
-        return currentMessage.getDisplayMessageBody();
+        for (int i = 0; i < pdus.length; i++) {
+            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[i]);
+            message += currentMessage.getDisplayMessageBody();
+        }
+
+        return message;
     }
 
 }
