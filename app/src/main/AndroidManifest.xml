@@ -37,6 +37,7 @@
 
         <service android:name=".ListenerService" />
         <service android:name=".CommandActivatorService" />
+        <service android:name=".SenderService" />
 
     </application>
 

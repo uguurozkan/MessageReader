@@ -29,23 +29,11 @@ public class SMSReceiver extends BroadcastReceiver {
 
     private void startMessageNotifierService(Context context, Intent intent) {
         Intent messageNotifierService = new Intent(context, NotifierService.class);
-        messageNotifierService.putExtra("address", getAddress(intent.getExtras()));
+        messageNotifierService.putExtra("address", getSenderNum(intent.getExtras()));
         messageNotifierService.putExtra("fromWhom", getSenderName(context, intent.getExtras()));
         messageNotifierService.putExtra("messageBody", getMessageBody(intent.getExtras()));
         context.startService(messageNotifierService);
-    }
-
-    private String getAddress(Bundle intentExtras) {
-        if (intentExtras == null)
-            return null;
-
-        String address = "";
-        final Object[] pdus = (Object[]) intentExtras.get("pdus");
-        for (int i = 0; i < pdus.length; i++) {
-            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[i]);
-            address += currentMessage.getOriginatingAddress();
-        }
-        return address;
+        //abortBroadcast();
     }
 
     /**

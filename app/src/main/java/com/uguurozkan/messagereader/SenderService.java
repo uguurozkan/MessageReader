@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.SpeechRecognizer;
 import android.telephony.SmsManager;
-import android.util.Log;
 
 import java.util.List;
 
@@ -33,7 +32,6 @@ public class SenderService extends ListenerService {
 
     @Override
     public void onResults(Bundle results) {
-        Log.d(TAG, "SenderService onResults ");
         if ((results != null) && results.containsKey(SpeechRecognizer.RESULTS_RECOGNITION)) {
             List<String> heard = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             sendSms(heard.get(0));

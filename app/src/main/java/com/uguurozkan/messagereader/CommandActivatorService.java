@@ -12,7 +12,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.SpeechRecognizer;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +25,7 @@ import java.util.List;
  */
 public class CommandActivatorService extends ListenerService {
 
+    private ArrayList<VoiceCommand> voiceCommands;
     private String messageBody, address;
 
     @Override
@@ -39,11 +39,10 @@ public class CommandActivatorService extends ListenerService {
 
     @Override
     public void onResults(Bundle results) {
-        Log.d(TAG, "Command activator onResults ");
         super.stopListening();
         if ((results != null) && results.containsKey(SpeechRecognizer.RESULTS_RECOGNITION)) {
             List<String> heard = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-            ArrayList<VoiceCommand> voiceCommands = parseCommands(heard);
+            parseCommands(heard);
             for (VoiceCommand command : voiceCommands) {
                 executeCommand(command);
             }
@@ -57,26 +56,27 @@ public class CommandActivatorService extends ListenerService {
         }
     }
 
-    private ArrayList<VoiceCommand> parseCommands(List<String> heard) {
-        ArrayList<VoiceCommand> voiceCommands = new ArrayList<>();
+    private void parseCommands(List<String> heard) {
+        voiceCommands = new ArrayList<>();
         for (String said : heard) {
-            Log.d(TAG, "parseCommands " + said);
             for (VoiceCommand command : VoiceCommand.values()) {
                 if (said.toLowerCase().contains(command.name().toLowerCase())) {
                     voiceCommands.add(command.getCommand());
                 }
             }
         }
+        organizeVoiceCommands();
+    }
+
+    private void organizeVoiceCommands() {
         HashSet<VoiceCommand> tempHS = new HashSet<>();
         tempHS.addAll(voiceCommands);
         voiceCommands.clear();
         voiceCommands.addAll(tempHS);
         Collections.sort(voiceCommands);
-        return voiceCommands;
     }
 
     private void executeCommand(VoiceCommand command) {
-        Log.d(TAG, command.name());
         switch (command) {
             case IGNORE:
                 markMessageAsRead();
@@ -91,7 +91,6 @@ public class CommandActivatorService extends ListenerService {
                 deleteMessage();
                 break;
             default:
-                Log.d(TAG, command.name());
                 break;
         }
     }
@@ -103,7 +102,6 @@ public class CommandActivatorService extends ListenerService {
             ContentValues values = new ContentValues();
             values.put("read", true);
             getContentResolver().update(Uri.parse("content://sms"), values, "_id=? and thread_id=?", messageParams);
-            Log.d(TAG, "marked As Read.");
         }
     }
 
@@ -127,7 +125,6 @@ public class CommandActivatorService extends ListenerService {
         String[] messageParams = findMessage();
         if (messageParams != null) {
             getContentResolver().delete(Uri.parse("content://sms"), "_id=? and thread_id=?", messageParams);
-            Log.d(TAG, "message deleted");
         }
     }
 
