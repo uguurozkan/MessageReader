@@ -39,9 +39,13 @@ public class SMSReceiver extends BroadcastReceiver {
         if (intentExtras == null)
             return null;
 
+        String address = "";
         final Object[] pdus = (Object[]) intentExtras.get("pdus");
-        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[0]);
-        return currentMessage.getOriginatingAddress();
+        for (int i = 0; i < pdus.length; i++) {
+            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[i]);
+            address += currentMessage.getOriginatingAddress();
+        }
+        return address;
     }
 
     /**
