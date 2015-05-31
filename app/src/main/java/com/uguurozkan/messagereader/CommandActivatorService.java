@@ -40,6 +40,7 @@ public class CommandActivatorService extends ListenerService {
     @Override
     public void onResults(Bundle results) {
         Log.d(TAG, "Command activator onResults ");
+        super.stopListening();
         if ((results != null) && results.containsKey(SpeechRecognizer.RESULTS_RECOGNITION)) {
             List<String> heard = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             ArrayList<VoiceCommand> voiceCommands = parseCommands(heard);
@@ -78,12 +79,13 @@ public class CommandActivatorService extends ListenerService {
         Log.d(TAG, command.name());
         switch (command) {
             case IGNORE:
-                markAsRead();
+                markMessageAsRead();
                 break;
             case READ:
                 readMessage();
+                break;
             case REPLY:
-                sendMessage();
+                sendNewMessage();
                 break;
             case DELETE:
                 deleteMessage();
@@ -94,7 +96,7 @@ public class CommandActivatorService extends ListenerService {
         }
     }
 
-    private void markAsRead() {
+    private void markMessageAsRead() {
         String[] messageParams = findMessage();
 
         if (messageParams != null) {
@@ -111,7 +113,7 @@ public class CommandActivatorService extends ListenerService {
         startService(messageReaderService);
     }
 
-    private void sendMessage() {
+    private void sendNewMessage() {
         startSenderService();
     }
 

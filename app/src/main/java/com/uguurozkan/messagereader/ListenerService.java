@@ -61,6 +61,10 @@ public class ListenerService extends Service implements RecognitionListener {
         getSpeechRecognizer().startListening(recognitionIntent);
     }
 
+    public void stopListening() {
+        getSpeechRecognizer().stopListening();
+    }
+
     @Override
     public void onError(int error) {
         Log.d(TAG, "error " + error);
@@ -75,6 +79,7 @@ public class ListenerService extends Service implements RecognitionListener {
     @Override
     public void onResults(Bundle results) {
         Log.d(TAG, "Listener service onResults ");
+        stopListening();
         stopSelf();
     }
 
@@ -112,6 +117,7 @@ public class ListenerService extends Service implements RecognitionListener {
     @Override
     public void onEndOfSpeech() {
         Log.d(TAG, "onEndOfSpeech");
+        stopListening();
     }
 
     @Override
