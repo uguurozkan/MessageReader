@@ -28,7 +28,7 @@ public class SMSReceiver extends BroadcastReceiver {
     }
 
     private void startMessageNotifierService(Context context, Intent intent) {
-        Intent messageNotifierService = new Intent(context, NotifierService.class);
+        Intent messageNotifierService = new Intent(context, SmsNotifierService.class);
         messageNotifierService.putExtra("address", getSenderNum(intent.getExtras()));
         messageNotifierService.putExtra("fromWhom", getSenderName(context, intent.getExtras()));
         messageNotifierService.putExtra("messageBody", getMessageBody(intent.getExtras()));

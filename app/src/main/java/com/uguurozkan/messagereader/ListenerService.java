@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.util.Log;
 
 /**
  * Created by Uğur Özkan on 5/29/2015.
@@ -23,6 +24,8 @@ public class ListenerService extends Service implements RecognitionListener {
 
     private SpeechRecognizer speechRecognizer;
     private Intent recognitionIntent;
+
+    String TAG = "TAGAT";
 
     @Override
     public void onCreate() {
@@ -41,6 +44,7 @@ public class ListenerService extends Service implements RecognitionListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "ListenerService OnstartCommand");
         initRecognitionIntent();
         listen();
         return super.onStartCommand(intent, flags, startId);
@@ -72,6 +76,7 @@ public class ListenerService extends Service implements RecognitionListener {
 
     @Override
     public void onResults(Bundle results) {
+        Log.d(TAG, "ListenerService onResults");
         stopListening();
         stopSelf();
     }
@@ -94,7 +99,7 @@ public class ListenerService extends Service implements RecognitionListener {
 
     @Override
     public void onBeginningOfSpeech() {
-
+        Log.d(TAG, "ListenerService onBeginningOfSpeech");
     }
 
     @Override
@@ -109,6 +114,7 @@ public class ListenerService extends Service implements RecognitionListener {
 
     @Override
     public void onEndOfSpeech() {
+        Log.d(TAG, "ListenerService onEndOfSpeech");
         stopListening();
     }
 

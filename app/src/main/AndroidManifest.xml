@@ -33,11 +33,12 @@
         </receiver>
 
         <service android:name=".ReaderService" />
-        <service android:name=".NotifierService" />
-
+        <service android:name=".SmsNotifierService" />
         <service android:name=".ListenerService" />
         <service android:name=".CommandActivatorService" />
         <service android:name=".SenderService" />
+
+        <service android:name=".MissedCallNotifierService" />
 
     </application>
 

@@ -13,7 +13,7 @@ import android.content.Intent;
  * <p/>
  * ugur.ozkan@ozu.edu.tr
  */
-public class NotifierService extends ReaderService {
+public class SmsNotifierService extends ReaderService {
 
     private final String SPEECH = "You have a new message from ";
     private String address, fromWhom, messageBody;

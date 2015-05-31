@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.SpeechRecognizer;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +60,7 @@ public class CommandActivatorService extends ListenerService {
     private void parseCommands(List<String> heard) {
         voiceCommands = new ArrayList<>();
         for (String said : heard) {
+            Log.d(TAG, "CommandActivatorService heard" + said);
             for (VoiceCommand command : VoiceCommand.values()) {
                 if (said.toLowerCase().contains(command.name().toLowerCase())) {
                     voiceCommands.add(command.getCommand());
@@ -77,6 +79,7 @@ public class CommandActivatorService extends ListenerService {
     }
 
     private void executeCommand(VoiceCommand command) {
+        Log.d(TAG, "CommandActivatorService executeCommand  " + command.name());
         switch (command) {
             case IGNORE:
                 markMessageAsRead();
