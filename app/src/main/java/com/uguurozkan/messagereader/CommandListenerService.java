@@ -142,17 +142,13 @@ public class CommandListenerService extends Service implements RecognitionListen
     }
 
     private void markAsRead() {
-        Uri uriSms = Uri.parse("content://sms");
         String[] messageParams = findMessage();
 
-        try {
+        if (messageParams != null) {
             ContentValues values = new ContentValues();
             values.put("read", true);
-            //getContentResolver().update(Uri.parse("content://sms/inbox"), values, "_id=" + messageId, null);
-
-            Log.d(TAG, "markAsREad.");
-        } catch (Exception e) {
-            Log.d(TAG, "no message found.");
+            this.getContentResolver().update(Uri.parse("content://sms"), values, "_id=? and thread_id=?", messageParams);
+            Log.d(TAG, "marked As Read.");
         }
     }
 
@@ -169,7 +165,7 @@ public class CommandListenerService extends Service implements RecognitionListen
     private void deleteMessage() {
         String[] messageParams = findMessage();
         if (messageParams != null) {
-            this.getContentResolver().delete(Uri.parse("content://sms"), "thread_id=? and _id=?", messageParams);
+            this.getContentResolver().delete(Uri.parse("content://sms"), "_id=? and thread_id=?", messageParams);
             Log.d(TAG, "message deleted");
         }
     }
@@ -181,7 +177,7 @@ public class CommandListenerService extends Service implements RecognitionListen
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 if (messageBody.equals(cursor.getString(5)) && address.equals(cursor.getString(2))) {
-                    return new String[]{String.valueOf(cursor.getString(1)), String.valueOf(cursor.getString(0))};
+                    return new String[]{String.valueOf(cursor.getString(0)), String.valueOf(cursor.getString(1))};
                 }
             } while (cursor.moveToNext());
         }
