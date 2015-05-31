@@ -6,7 +6,9 @@
 
 package com.uguurozkan.messagereader;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.speech.SpeechRecognizer;
 import android.telephony.SmsManager;
@@ -43,5 +45,14 @@ public class SenderService extends ListenerService {
     private void sendSms(String message) {
         SmsManager sms = SmsManager.getDefault();
         sms.sendTextMessage(address, null, message, null, null);
+
+        showMessageInHistory(message);
+    }
+
+    private void showMessageInHistory(String message) {
+        ContentValues values = new ContentValues();
+        values.put("address", address);
+        values.put("body", message);
+        getContentResolver().insert(Uri.parse("content://sms/sent"), values);
     }
 }
