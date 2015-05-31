@@ -13,17 +13,19 @@ import android.content.Intent;
  * <p/>
  * ugur.ozkan@ozu.edu.tr
  */
-public class NewMessageNotifierService extends Reader {
+public class NotifierService extends Reader {
 
     private final String SPEECH = "You have a new message from ";
-    private String fromWho, messageBody;
+    private String fromWhom, messageBody;
+    private String address;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        fromWhom = intent.getStringExtra("fromWhom");
         messageBody = intent.getStringExtra("messageBody");
-        fromWho = intent.getStringExtra("senderNum");
+        address = intent.getStringExtra("address");
         Intent readIntent = new Intent(getApplicationContext(), super.getClass());
-        readIntent.putExtra("speech", SPEECH + fromWho);
+        readIntent.putExtra("speech", SPEECH + fromWhom);
         return super.onStartCommand(readIntent, flags, startId);
     }
 
@@ -37,6 +39,7 @@ public class NewMessageNotifierService extends Reader {
     private void startCommandListenerService() {
         Intent commandListenerService = new Intent(getApplicationContext(), CommandListenerService.class);
         commandListenerService.putExtra("messageBody", messageBody);
+        commandListenerService.putExtra("address", address);
         getApplicationContext().startService(commandListenerService);
     }
 }

@@ -8,6 +8,8 @@ package com.uguurozkan.messagereader;
 
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.speech.RecognitionListener;
@@ -30,6 +32,7 @@ public class CommandListenerService extends Service implements RecognitionListen
     private SpeechRecognizer speechRecognizer;
     private Intent recognitionIntent;
     private String messageBody;
+    private String address;
 
     String TAG = "TAGAT";
 
@@ -52,6 +55,7 @@ public class CommandListenerService extends Service implements RecognitionListen
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
         messageBody = intent.getStringExtra("messageBody");
+        address = intent.getStringExtra("address");
         initRecognitionIntent();
         listen();
         return super.onStartCommand(intent, flags, startId);
@@ -89,7 +93,9 @@ public class CommandListenerService extends Service implements RecognitionListen
                 executeCommand(command);
             }
 
-            if (!voiceCommands.isEmpty()) {
+            if (voiceCommands.isEmpty()) {
+                listen();
+            } else {
                 stopSelf();
             }
         }
@@ -115,14 +121,18 @@ public class CommandListenerService extends Service implements RecognitionListen
     }
 
     private void executeCommand(VoiceCommand command) {
+        Log.d(TAG, command.name());
         switch (command) {
             case IGNORE:
+                markAsRead();
                 break;
             case READ:
                 readMessage();
             case REPLY:
+                sendMessage();
                 break;
             case DELETE:
+                deleteMessage();
                 break;
             default:
                 Log.d(TAG, command.name());
@@ -130,10 +140,47 @@ public class CommandListenerService extends Service implements RecognitionListen
         }
     }
 
+    private void markAsRead() {
+        try {
+//            ContentValues values = new ContentValues();
+//            values.put("read", true);
+//            getContentResolver().update(Uri.parse("content://sms/inbox"), values, "_id=" + messageId, null);
+//
+//            Log.d(TAG, "markAsREad.");
+        } catch (Exception e) {
+            Log.d(TAG, "no message found.");
+        }
+    }
+
     private void readMessage() {
         Intent messageNotifierService = new Intent(this, Reader.class);
         messageNotifierService.putExtra("speech", messageBody);
         this.startService(messageNotifierService);
+    }
+
+    private void sendMessage() {
+    }
+
+    private void deleteMessage() {
+        Uri uriSms = Uri.parse("content://sms");
+        String[] messageParams = findMessage();
+        if (messageParams != null) {
+            this.getContentResolver().delete(uriSms, "thread_id=? and _id=?", new String[]{messageParams[0], messageParams[1]});
+        }
+    }
+
+    private String[] findMessage() {
+        Uri uriSms = Uri.parse("content://sms");
+        Cursor cursor = this.getContentResolver().query(uriSms, new String[]{"_id", "thread_id", "address", "person", "date", "body"}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                if (messageBody.equals(cursor.getString(5)) && address.equals(cursor.getString(2))) {
+                    return new String[]{String.valueOf(cursor.getString(0)), String.valueOf(cursor.getString(1))};
+                }
+            } while (cursor.moveToNext());
+        }
+        return null;
     }
 
     @Override

@@ -28,11 +28,22 @@ public class SMSReceiver extends BroadcastReceiver {
     }
 
     private void startMessageNotifierService(Context context, Intent intent) {
-        Intent messageNotifierService = new Intent(context, NewMessageNotifierService.class);
-        messageNotifierService.putExtra("senderNum", getSenderName(context, intent.getExtras()));
+        Intent messageNotifierService = new Intent(context, NotifierService.class);
+        messageNotifierService.putExtra("address", getAddress(intent.getExtras()));
+        messageNotifierService.putExtra("fromWhom", getSenderName(context, intent.getExtras()));
         messageNotifierService.putExtra("messageBody", getMessageBody(intent.getExtras()));
         context.startService(messageNotifierService);
     }
+
+    private String getAddress(Bundle intentExtras) {
+        if (intentExtras == null)
+            return null;
+
+        final Object[] pdus = (Object[]) intentExtras.get("pdus");
+        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdus[0]);
+        return currentMessage.getOriginatingAddress();
+    }
+
 
     /**
      * Parse contact name from the number.

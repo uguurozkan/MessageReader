@@ -33,7 +33,7 @@
         </receiver>
 
         <service android:name=".Reader" />
-        <service android:name=".NewMessageNotifierService" />
+        <service android:name=".NotifierService" />
         <service android:name=".CommandListenerService" />
 
     </application>
@@ -42,6 +42,7 @@
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WRITE_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
