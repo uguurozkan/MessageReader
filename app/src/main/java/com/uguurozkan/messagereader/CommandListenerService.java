@@ -7,6 +7,7 @@
 package com.uguurozkan.messagereader;
 
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -141,12 +142,15 @@ public class CommandListenerService extends Service implements RecognitionListen
     }
 
     private void markAsRead() {
+        Uri uriSms = Uri.parse("content://sms");
+        String[] messageParams = findMessage();
+
         try {
-//            ContentValues values = new ContentValues();
-//            values.put("read", true);
-//            getContentResolver().update(Uri.parse("content://sms/inbox"), values, "_id=" + messageId, null);
-//
-//            Log.d(TAG, "markAsREad.");
+            ContentValues values = new ContentValues();
+            values.put("read", true);
+            //getContentResolver().update(Uri.parse("content://sms/inbox"), values, "_id=" + messageId, null);
+
+            Log.d(TAG, "markAsREad.");
         } catch (Exception e) {
             Log.d(TAG, "no message found.");
         }
@@ -159,24 +163,25 @@ public class CommandListenerService extends Service implements RecognitionListen
     }
 
     private void sendMessage() {
+        //http://www.sitepoint.com/how-to-handle-sms-in-android/
     }
 
     private void deleteMessage() {
-        Uri uriSms = Uri.parse("content://sms");
         String[] messageParams = findMessage();
         if (messageParams != null) {
-            this.getContentResolver().delete(uriSms, "thread_id=? and _id=?", new String[]{messageParams[0], messageParams[1]});
+            this.getContentResolver().delete(Uri.parse("content://sms"), "thread_id=? and _id=?", messageParams);
+            Log.d(TAG, "message deleted");
         }
     }
 
     private String[] findMessage() {
-        Uri uriSms = Uri.parse("content://sms");
-        Cursor cursor = this.getContentResolver().query(uriSms, new String[]{"_id", "thread_id", "address", "person", "date", "body"}, null, null, null);
+        Cursor cursor = this.getContentResolver().query(Uri.parse("content://sms"),
+                new String[]{"_id", "thread_id", "address", "person", "date", "body"}, null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 if (messageBody.equals(cursor.getString(5)) && address.equals(cursor.getString(2))) {
-                    return new String[]{String.valueOf(cursor.getString(0)), String.valueOf(cursor.getString(1))};
+                    return new String[]{String.valueOf(cursor.getString(1)), String.valueOf(cursor.getString(0))};
                 }
             } while (cursor.moveToNext());
         }
