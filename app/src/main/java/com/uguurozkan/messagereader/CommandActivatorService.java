@@ -104,7 +104,7 @@ public class CommandActivatorService extends ListenerService {
         if (messageParams != null) {
             ContentValues values = new ContentValues();
             values.put("read", true);
-            getContentResolver().update(Uri.parse("content://sms"), values, "_id=? and thread_id=?", messageParams);
+            getContentResolver().update(Uri.parse("content://sms/inbox"), values, "_id=? and thread_id=?", messageParams);
         }
     }
 
@@ -127,7 +127,7 @@ public class CommandActivatorService extends ListenerService {
     private void deleteMessage() {
         String[] messageParams = findMessage();
         if (messageParams != null) {
-            getContentResolver().delete(Uri.parse("content://sms"), "_id=? and thread_id=?", messageParams);
+            getContentResolver().delete(Uri.parse("content://sms/inbox"), "_id=? and thread_id=?", messageParams);
         }
     }
 
