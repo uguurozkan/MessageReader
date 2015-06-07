@@ -24,6 +24,7 @@ public class ListenerService extends Service implements RecognitionListener {
 
     private SpeechRecognizer speechRecognizer;
     private Intent recognitionIntent;
+    private long arrivalTime;
 
     String TAG = "TAGAT";
 
@@ -31,6 +32,7 @@ public class ListenerService extends Service implements RecognitionListener {
     public void onCreate() {
         super.onCreate();
         speechRecognizer = getSpeechRecognizer();
+        arrivalTime = System.currentTimeMillis();
     }
 
     // Lazy initialization
@@ -71,6 +73,11 @@ public class ListenerService extends Service implements RecognitionListener {
                 (error == SpeechRecognizer.ERROR_NETWORK_TIMEOUT) ||
                 (error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT)) {
             listen();
+        }
+        // 900000 ms = 15 min
+        if (System.currentTimeMillis() >= arrivalTime + 900000) {
+            stopListening();
+            stopSelf();
         }
     }
 
