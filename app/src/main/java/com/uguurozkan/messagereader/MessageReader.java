@@ -17,7 +17,7 @@ public class MessageReader extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_message_reader);
-        startMissedCallService();
+        //startMissedCallService();
         Toast.makeText(this, "Hands Free Message app started.", Toast.LENGTH_LONG).show();
         finish();
     }
