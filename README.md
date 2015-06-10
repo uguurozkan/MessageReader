@@ -1,7 +1,7 @@
 # MessageReader
 The official repository of the MessageReader App.
 
-This Android app is, mainly, intented for blind people, but it is suitable for everyone.
+This Android app is, mainly, intended for blind people, but it is suitable for everyone.
 
 
 This app:
